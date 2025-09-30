@@ -1,6 +1,6 @@
 function [x, beta] = RBGS_GMRES(A, s, p, Theta, basisFunc, b, ctol)
     %Inputs:
-    %A          matrix of size (n, n)
+    %A          matrix of size (n, n) or function handle
     %v          start vector of size (n, 1)
     %s          step size
     %p          number of iterations, dimension of the final
@@ -14,8 +14,15 @@ function [x, beta] = RBGS_GMRES(A, s, p, Theta, basisFunc, b, ctol)
     %x          approximate solution of size (n, 1)
     %beta       store the norm of the residual
 
+    %check whether A is a matrix or function handle
+    if isa(A, 'function_handle')
+        Amul = @(x) A(x);
+    else
+        Amul = @(x) A * x;
+    end
+
     m = s * p + 1;
-    n = size(A, 1);
+    n = length(b);
     d = size(Theta, 1);
     V = zeros(n, m); %store basis vectors
     P = zeros(d, m); %store sketched basis vectors
@@ -26,7 +33,7 @@ function [x, beta] = RBGS_GMRES(A, s, p, Theta, basisFunc, b, ctol)
     B = zeros (s+1, s, p);
 
     x0 = zeros(n, 1);
-    r0 = b - A * x0;
+    r0 = b - Amul(x0);
     beta0 = norm(Theta * r0);
     beta = beta0;
     e1 = zeros(m, 1);
@@ -42,7 +49,7 @@ function [x, beta] = RBGS_GMRES(A, s, p, Theta, basisFunc, b, ctol)
     for j = 1:p
         i = s * (j-1) + 1;
         cols = (i + 1) : (i + s);
-        [V(:, cols), B(:, :, j)] = basisFunc(A, Q(:, i), s);
+        [V(:, cols), B(:, :, j)] = basisFunc(Amul, Q(:, i), s);
         P(:, cols) = Theta * V(:, cols);
         R(1:i, cols) = S(:, 1:i) \ P(:, cols);
         Q(:, cols) = V(:, cols) - Q(:, 1:i) * R(1:i, cols);
@@ -53,7 +60,7 @@ function [x, beta] = RBGS_GMRES(A, s, p, Theta, basisFunc, b, ctol)
         b_0 = i : (i + s - 1);
         
         %update Hessenberg, explicit sketch
-        M = Theta * A * Q(:, b_0);
+        M = Theta * Amul(Q(:, b_0));
         H(1:(i+s), b_0) = S(:, 1:(i+s)) \ M;
 
         %solve the least-square problem

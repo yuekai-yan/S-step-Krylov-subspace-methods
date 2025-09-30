@@ -1,14 +1,8 @@
-function X = Gaussian(d, n, mu, sigma)
+function X = Gaussian(d, n)
     %X is a d-by-n random matrix with independent entries
-    %distributed as N(mu,sigma^2).
-
-    if nargin < 3
-        mu = 0;
-    end
-    
-    if nargin < 4
-        sigma = 1;
-    end
-
+    %distributed as N(0, 1/d).
+    mu = 0;
+    sigma = 1 / sqrt(d);
+    %sigma = 1;
     X = mu + sigma .* randn(d, n);
 end

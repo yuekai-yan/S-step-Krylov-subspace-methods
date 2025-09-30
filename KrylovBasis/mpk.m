@@ -1,14 +1,14 @@
 function [V, B] = mpk(A, q, s, beta, gamma)
     %Inputs: 
-    %  A          matrix of size (n, n)
-    %  q          start vector of size (n, 1)
-    %  s          the dimension of Krylov subspace
-    %  beta       vector of size (s, 1)
-    %  gamma      vector of size (s, 1)
+    %A          function handle: (n×1 vector) -> (n×1 vector)
+    %q          start vector of size (n, 1)
+    %s          the dimension of Krylov subspace
+    %beta       vector of size (s, 1)
+    %gamma      vector of size (s, 1)
     %
     %Outputs:
-    %  V          basis of size (n, s)
-    %  B          change-of-basis matrix such that 
+    %V          basis of size (n, s)
+    %B          change-of-basis matrix of size (s+1, s) such that 
     %             A * V(:, 1:s) = V(:, 1:(s+1)) * B
     
     if nargin < 4
@@ -18,20 +18,21 @@ function [V, B] = mpk(A, q, s, beta, gamma)
     if nargin < 5
         gamma = ones(s, 1);
     end
-    n = size(A, 1);
-    V_1 = zeros(n, s+1); %The matrix is augmented with an additional
-                         %column p_s(A) * q
+
+    n = length(q);
+    V_1 = zeros(n, s+1);
     B = zeros(s+1, s);
-    P = eye(n);
 
     v = q / norm(q);
     V_1(:, 1) = v;
 
     for j = 1:s
-        P = (A - beta(j) * eye(n)) * P;
-        V_1(:, j+1) = P * v;
+        w = A(V_1(:, j)) - beta(j) * V_1(:, j);
+        V_1(:, j+1) = w / gamma(j);
     end
 
-    V = V_1(:, 1:s);
-    B = V_1 \ (A * V);
+    V = V_1(:, 2:s+1);
+    
+    B(1:s, 1:s) = diag(beta);
+    B(2:(s+1), 1:s) = B(2:(s+1), 1:s) + diag(gamma);
 end
