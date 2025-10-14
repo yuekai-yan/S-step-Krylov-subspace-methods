@@ -1,4 +1,4 @@
-function [x, beta] = BGS_GMRES(A, s, p, basisFunc, b, ctol)
+function [x, beta, orthErr] = BGS_GMRES(A, s, p, basisFunc, b, ctol)
     %Inputs:
     %A          matrix of size (n, n) or function handle
     %v          start vector of size (n, 1)
@@ -11,7 +11,7 @@ function [x, beta] = BGS_GMRES(A, s, p, basisFunc, b, ctol)
     %
     %Outputs:
     %x          approximate solution of size (n, 1)
-    %beta       store the norm of the residual
+    %beta       relative residual || A * x - b || / || b ||
 
     %check whether A is a matrix or function handle
     if isa(A, 'function_handle')
@@ -35,9 +35,12 @@ function [x, beta] = BGS_GMRES(A, s, p, basisFunc, b, ctol)
     r0 = b - Amul(x0);
     %beta0 = norm(Theta * r0);
     beta0 = norm(r0);
-    beta = beta0;
+    beta = 1;
     e1 = zeros(m, 1);
     e1(1) = beta0;
+
+    orthErr = 0; %store the orthogonalization error of the 
+                  %Theta-orthogonal matrix Q
 
     v = r0;
     V(:, 1) = v;
@@ -50,13 +53,26 @@ function [x, beta] = BGS_GMRES(A, s, p, basisFunc, b, ctol)
     for j = 1:p
         i = s * (j-1) + 1;
         cols = (i + 1) : (i + s);
+        k = j * s;
         [V(:, cols), B(:, :, j)] = basisFunc(Amul, Q(:, i), s);
         %P(:, cols) = Theta * V(:, cols);
         %R(1:i, cols) = S(:, 1:i) \ P(:, cols);
         R(1:i, cols) = Q(:, 1:i)' * V(:, cols);
         Q(:, cols) = V(:, cols) - Q(:, 1:i) * R(1:i, cols);
+
+        %reorthogonalization between blocks
+        D = Q(:, 1:i)' * Q(:, cols);
+        Q(:, cols) = Q(:, cols) - Q(:, 1:i) * D;
+        R(1:i, cols) = R(1:i, cols) + D;
+
         %S(:, cols) = P(:, cols) - S(:,1:i) * R(1:i, cols);
         [Q(:, cols), R(cols, cols)] = qr(Q(:, cols), 0);
+
+        %reorthogonalization within one block
+        [Q(:, cols), R1] = qr(Q(:, cols), 0);
+        R(cols, cols) = R1 * R(cols, cols);
+
+        orthErr = [orthErr; norm(Q(:, 1:k)' * Q(:, 1:k) - eye(k), 'fro')];
         %Q(:, cols) = Q(:, cols) / R(cols, cols); 
         %S(:, cols) = Theta * Q(:, cols);
         b_0 = i : (i + s - 1);
@@ -70,12 +86,13 @@ function [x, beta] = BGS_GMRES(A, s, p, basisFunc, b, ctol)
         y = H(1:(i+s), 1:(j*s)) \ e1(1:(i+s), 1);
 
         %compute the residual
+        %beta = [beta; ...
+                %norm(e1(1:(i+s), 1) - H(1:(i+s), 1:(j*s)) * y)];
         beta = [beta; ...
-                norm(e1(1:(i+s), 1) - H(1:(i+s), 1:(j*s)) * y)];
-        k = j * s;
+                norm(Amul(Q(:, 1:k)*y)-b) / norm(b)];
         %test for convergence of residual
-        if beta(end) < ctol * beta0
-            fprintf('converged after %d steps\n', k);
+        if beta(end) < ctol
+            fprintf('BGS converged after %d steps\n', k);
             break
         end
 

@@ -1,4 +1,4 @@
-function [x, beta] = RBGS_GMRES(A, s, p, Theta, basisFunc, b, ctol)
+function [x, beta, orthErr] = RBGS_GMRES(A, s, p, Theta, basisFunc, b, ctol)
     %Inputs:
     %A          matrix of size (n, n) or function handle
     %v          start vector of size (n, 1)
@@ -31,11 +31,14 @@ function [x, beta] = RBGS_GMRES(A, s, p, Theta, basisFunc, b, ctol)
     Q = zeros (n, m);
     H = zeros (m, m-1);
     B = zeros (s+1, s, p);
-
+    orthErr = 0; %store the orthogonalization error of the 
+                  %Theta-orthogonal matrix Q
+                  
     x0 = zeros(n, 1);
     r0 = b - Amul(x0);
     beta0 = norm(Theta * r0);
-    beta = beta0;
+    %beta = beta0;
+    beta = 1;
     e1 = zeros(m, 1);
     e1(1) = beta0;
 
@@ -49,13 +52,37 @@ function [x, beta] = RBGS_GMRES(A, s, p, Theta, basisFunc, b, ctol)
     for j = 1:p
         i = s * (j-1) + 1;
         cols = (i + 1) : (i + s);
+        k = j * s;
         [V(:, cols), B(:, :, j)] = basisFunc(Amul, Q(:, i), s);
+
         P(:, cols) = Theta * V(:, cols);
         R(1:i, cols) = S(:, 1:i) \ P(:, cols);
         Q(:, cols) = V(:, cols) - Q(:, 1:i) * R(1:i, cols);
-        S(:, cols) = P(:, cols) - S(:,1:i) * R(1:i, cols);
-        [~, R(cols, cols)] = qr(S(:, cols), 0);
-        Q(:, cols) = Q(:, cols) / R(cols, cols); 
+
+        %reorthogonalization between blocks
+        C = Theta * Q(:, cols);
+        D = S(:, 1:i) \ C;
+        Q(:, cols) = Q(:, cols) - Q(:, 1:i) * D;
+        R(1:i, cols) = R(1:i, cols) + D;
+
+        %S(:, cols) = P(:, cols) - S(:,1:i) * R(1:i, cols);
+        %[~, R(cols, cols)] = qr(S(:, cols), 0);
+        %Q(:, cols) = Q(:, cols) / R(cols, cols);
+
+        %orthogonalization within a block
+        S(:, cols) = Theta * Q(:, cols);
+        [U1, R1]   = qr(S(:, cols), 0);
+        Q(:, cols) = Q(:, cols) / R1;   
+        S(:, cols) = U1;                
+        R(cols,cols) = R1;              
+
+        %reorthogonalization
+        S(:, cols) = Theta * Q(:, cols);
+        [~, R2]   = qr(S(:, cols), 0);
+        Q(:, cols) = Q(:, cols) / R2;
+        Q1 = Theta * Q(:, 1:k);
+
+        orthErr = [orthErr; norm(Q1' * Q1 - eye(k), 'fro')];
         S(:, cols) = Theta * Q(:, cols);
         b_0 = i : (i + s - 1);
         
@@ -67,12 +94,14 @@ function [x, beta] = RBGS_GMRES(A, s, p, Theta, basisFunc, b, ctol)
         y = H(1:(i+s), 1:(j*s)) \ e1(1:(i+s), 1);
 
         %compute the residual
+        % beta = [beta; ...
+        %         norm(e1(1:(i+s), 1) - H(1:(i+s), 1:(j*s)) * y)];
+        
         beta = [beta; ...
-                norm(e1(1:(i+s), 1) - H(1:(i+s), 1:(j*s)) * y)];
-        k = j * s;
+                norm(Amul(Q(:,1:length(y))*y)-b) / norm(b)];
         %test for convergence of residual
-        if beta(end) < ctol * beta0
-            fprintf('converged after %d steps\n', k);
+        if beta(end) < ctol
+            fprintf('RBGS converged after %d steps\n', k);
             break
         end
 

@@ -16,15 +16,19 @@ function [Afun, info] = getStartMatrix(n, kappa, alpha)
         kappa = 50;
     end  
     if nargin < 3
-        alpha = 0.1;  % default superdiagonal weight
+        alpha = 1e-3;  % default superdiagonal weight
     end
 
     % Construct eigenvalues (positive, logarithmically spaced)
     % Range: [1, kappa], length = n
-    lambda = logspace(0, log10(kappa), n).';
+    %lambda = logspace(0, log10(kappa), n).';
+    %lambda = linspace(1, kappa, n).';
+    lambda = logspace(0,-5,n).';
 
     % Build upper bidiagonal matrix in Fourier domain
-    B = diag(lambda) + alpha * diag(ones(n-1,1), 1);
+    % B = diag(lambda) + alpha * diag(ones(n-1,1), 1);
+    B = diag(lambda) + alpha * diag(randn(n-1,1), 1);
+    % B = diag(lambda);
 
     % Define matvec: A*x = Q^H * B * Q * x
     Afun = @(x) ifft(B * fft(x));

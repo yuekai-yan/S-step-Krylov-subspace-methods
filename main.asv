@@ -12,8 +12,8 @@ A = @(x) matrix * x;
 b = randn(n,1);
 b = b / norm(b);
 %step size
-ss = [10];
-m = 1001; 
+ss = [5];
+m = 501; 
 d = 2 * m;
 ctol = 1e-16;
 runs = 1;
