@@ -21,6 +21,10 @@ for j = 1:length(ss)
     s = ss(j);    
     p = (m-1) / s;
     m = s * p + 1;
+
+    %monomial basis
+    %basisFunc = @mpk
+    
     %Newton basis
     RitzValues = getRitzValues(A, randn(n, 1), s);
     basisFunc = @(Afun, q, s) mpk(Afun, q, s, RitzValues);
