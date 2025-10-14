@@ -12,7 +12,7 @@ A = @(x) matrix * x;
 b = randn(n,1);
 b = b / norm(b);
 %step size
-ss = [10];
+ss = [5];
 m = 1001; 
 d = 2 * m;
 ctol = 1e-16;
