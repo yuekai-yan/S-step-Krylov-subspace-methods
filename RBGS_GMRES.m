@@ -73,7 +73,7 @@ function [x, beta, orthErr] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
         S(:, cols) = Theta * Q(:, cols);
         b_0 = i : (i + s - 1);  % s*(j-1)+1 : s*j
         
-        % update Hessenberg, explicit sketch
+        % update Hessenberg, explicit version
         M = Theta * Amul(Q(:, b_0));
         H(1:(i+s), b_0) = S(:, 1:(i+s)) \ M;
 

@@ -1,6 +1,6 @@
 % load the matrix
 % matrix from SuiteSparse
-matnum = 'Si10H16';
+matnum = 'SiO2';
 S = load([matnum '.mat']);
 matrix = S.Problem.A;
 n = size(matrix, 1);
@@ -18,8 +18,8 @@ A = @(x) matrix * x;
 b = randn(n,1);
 b = b / norm(b);
 % step size
-ss = 55:5:100;
-%ss = [5];
+%ss = 55:5:100;
+ss = [60];
 l = length(ss);
 %res4s = {};
 ctol = 1e-16;
@@ -41,7 +41,7 @@ SketchMethods = {...
 
 % ---------- GMRES matlab ----------
 fprintf('Starting GMRES \n');
-%[~,~,~,~,resvec] = gmres(A,b,[],ctol,1000);
+[~,~,~,~,resvec] = gmres(A,b,[],ctol,1000);
 fprintf('GMRES terminated \n');
 % record the minimum relative residual achieved by GMRES
 %res4s{end + 1} = min(resvec); 
@@ -143,7 +143,7 @@ for j = 1:l
     % record the minimum residual achieved for each s
     res4s{end + 1} = [min(relErr_mean(2:end)), min(relErr_BGS(2:end))];
 
-    %{
+    
     % ---------- plot for each s ----------
     % plot 1: relative error vs. iteration number
     figure; 
