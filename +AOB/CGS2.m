@@ -1,12 +1,11 @@
 function [Q, R] = CGS2(X, B)
     %Classic Gram-Schmidt with reorthogonalization against other blocks
     %Input:
-    %X      n-by-m matrix, whose columns are Theta
-    %       orthonormal
+    %X      n-by-m matrix, whose columns are orthonormal
     %B      small block matrix of size n-by-s to be 
-    %       Theta orthogonalized with X
+    %       orthogonalized with X
     %Output:
-    %Q      Theta orthogonalized matrix against X of size n-by-s
+    %Q      orthogonalized matrix against X of size n-by-s
     %R      m-by-s matrix
 
     n = size(X, 1);
