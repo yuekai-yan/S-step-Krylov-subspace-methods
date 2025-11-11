@@ -15,12 +15,11 @@ A = @(x) matrix * x;
 %A = matrix;
 
 % set the basic parameters
-%b2 = randn(n,1);
-%b2 = b2 / norm(b2);
-b = b2;
+b = randn(n,1);
+b = b / norm(b);
 % step size
-%ss = 5:5:50;
-ss = [40];
+ss = 5:5:50;
+%ss = [50];
 l = length(ss);
 res4s = {};
 ctol = 1e-16;
@@ -41,7 +40,7 @@ SketchMethods = {...
 
 
 % ---------- GMRES matlab ----------
-fprintf('Starting GMRES \n');
+fprintf('Starting GMRES \n');Ω
 [~,~,~,~,resvec] = gmres(A,b,[],ctol,1000);
 fprintf('GMRES terminated \n');
 % record the minimum relative residual achieved by GMRES
@@ -171,7 +170,7 @@ for j = 1:l
     legend('show','Location','best');
     grid on;    
     title(sprintf('Relative Residual vs. Iteration Number (s = %d, m = %d, %s)', s, m, matnum));    
-    %exportgraphics(gcf, sprintf('fig/%s/%s_relErr_iter_CI_s%d_m%d_reorth_newton.png', matnum, matnum, s, m));
+    exportgraphics(gcf, sprintf('fig/%s/%s_relErr_iter_CI_s%d_m%d_reorth_newton.png', matnum, matnum, s, m));
 
 
     % Plot 2: orthogonality loss
@@ -196,7 +195,7 @@ for j = 1:l
     legend('show','Location','best');
     grid on;    
     title(sprintf('Orthogonality loss vs. Iteration Number (s = %d, m = %d, %s)', s, m, matnum));
-    %exportgraphics(gcf, sprintf('fig/%s/%s_orthErr_s%d_m%d_reorth_newton.png', matnum, matnum, s, m));
+    exportgraphics(gcf, sprintf('fig/%s/%s_orthErr_s%d_m%d_reorth_newton.png', matnum, matnum, s, m));
     
     
     
@@ -257,4 +256,4 @@ ylabel('Relative Residual $\| A x - b \|_2 / \| b \|_2$', ...
             'Interpreter', 'latex', 'FontSize', 14);
 title(sprintf('Minimum Relative Residual vs s (%s)', matnum));
 legend('Location', 'best');
-%exportgraphics(gcf, sprintf('fig/%s/%s_minrel_s5-s50.png', matnum, matnum));
+exportgraphics(gcf, sprintf('fig/%s/%s_minrel_s5-s50.png', matnum, matnum));

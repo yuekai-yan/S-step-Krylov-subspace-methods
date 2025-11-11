@@ -9,7 +9,7 @@ function [V, B] = mpk(A, q, s, beta, gamma)
     %Outputs:
     %V          basis of size (n, s)
     %B          change-of-basis matrix of size (s+1, s) such that 
-    %             A * V(:, 1:s) = V(:, 1:(s+1)) * B
+    %             A * V_1(:, 1:s) = V_1(:, 1:(s+1)) * B
     
     if nargin < 4
         beta = zeros(s, 1);

@@ -13,7 +13,7 @@ function [x, beta, orthErr] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
     %WB         orthogonalization methods within one block {
     %           rWhitening (QR), RGS (backslash), rCGS, rCGS2, rMGS}
     %b          RHS of the A * x = b
-    %ctol       convergence tolerence
+    %ctol       convergence tolerenceßß
     %
     %Outputs:
     %x          approximate solution of size (n, 1)
@@ -33,9 +33,10 @@ function [x, beta, orthErr] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
     %P = zeros(d, m); % store sketched basis vectors
     S = zeros(d, m); % store orthonormal sketched basis vectors
     R = zeros(m+1, m+1);
-    Q = zeros (n, m);
-    H = zeros (m, m-1);
-    B = zeros (s+1, s, p);
+    Q = zeros(n, m);
+    H = zeros(m, m-1);
+    B = zeros(s+1, s);
+    %M = [];  % store the Theta * A * Q
     orthErr = 0; % store the orthogonalization error of the 
                   % Theta-orthogonal matrix Q
                   
@@ -49,6 +50,7 @@ function [x, beta, orthErr] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
     v = b;
     V(:, 1) = v;
     sketch0 = Theta * v;
+    %P(:, 1) = sketch0;
     R(1, 1) = norm(sketch0);
     Q(:, 1) = V(:, 1) ./ R(1, 1);
     S(:, 1) = Theta * Q(:, 1);
@@ -57,7 +59,8 @@ function [x, beta, orthErr] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
         i = s * (j-1) + 1;
         cols = (i + 1) : (i + s);
         k = j * s;
-        [V(:, cols), B(:, :, j)] = basisFunc(Amul, Q(:, i), s);
+        [V(:, cols), B] = basisFunc(Amul, Q(:, i), s);
+        %P(:, cols) = Theta * V(:, cols);
 
         % Theta-orthogonalized V(:, cols) with Q(:, 1:i)
         AOB_fun = str2func(sprintf('AOB.%s', AOB));
@@ -71,11 +74,21 @@ function [x, beta, orthErr] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
         Q1 = Theta * Q(:, 1:k);
         orthErr = [orthErr; norm(Q1' * Q1 - eye(k), 'fro')];
         S(:, cols) = Theta * Q(:, cols);
-        b_0 = i : (i + s - 1);  % s*(j-1)+1 : s*j
+        b_0 = i : (i+s-1);  % s*(j-1)+1 : s*j
         
         % update Hessenberg, explicit version
         M = Theta * Amul(Q(:, b_0));
         H(1:(i+s), b_0) = S(:, 1:(i+s)) \ M;
+        %{
+        % implicit version
+        b_hat = (i+1) : (i+s-1);
+        K0 = [S(:, i), P(:, cols)] * B;
+        M = [M, K0(:, 1)];
+        K = K0(:, 2:end) - M(:, 1:i) * R(1:i, b_hat);
+        K1 = K / R(b_hat, b_hat);
+        M = [M, K1];
+        H(1:(i+s), b_0) = S(:, 1:(i+s)) \ M(:, b_0); 
+        %}
 
         % solve the least-square problem
         y = H(1:(i+s), 1:(j*s)) \ e1(1:(i+s), 1);  % k-by-1
