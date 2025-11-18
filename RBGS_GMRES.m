@@ -17,7 +17,7 @@ function [x, beta, orthErr] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
     %
     %Outputs:
     %x          approximate solution of size (n, 1)
-    %beta       store the norm of the residual
+    %beta       store the norm of the relative residual
 
     % check whether A is a matrix or function handle
     if isa(A, 'function_handle')
@@ -43,7 +43,7 @@ function [x, beta, orthErr] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
     x0 = zeros(n, 1);
     r0 = b - Amul(x0);
     beta0 = norm(Theta * r0);
-    beta = norm(r0);
+    beta = norm(r0) / norm(b);
     e1 = zeros(m, 1);
     e1(1) = beta0;
 

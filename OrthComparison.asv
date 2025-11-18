@@ -18,7 +18,7 @@ A = @(x) matrix * x;
 b = randn(n,1);
 b = b / norm(b);
 % step size
-ss = [5, 10, 15, 20, 25];
+ss = 25:5:30;
 l = length(ss);
 %s = 5;
 
@@ -31,7 +31,6 @@ AOB_options = ["rCGS2", "rCGS", "RGS", "rMGS"];
 % define WB_options for RBGS
 WB_options = ["rCGS", "rCGS2", "RGS", "rMGS", "rWhitening"];
 
-
 relErr = zeros(length(WB_options),length(AOB_options), l);
 orthErr = zeros(length(WB_options),length(AOB_options), l);
 
@@ -41,8 +40,10 @@ for vs = 1:l
     m = p * s + 1;
     d = 2 * m;
     % Newton Basis
-RitzValues = getRitzValues(A, randn(n, 1), s);
-basisFunc = @(Afun, q, s) mpk(Afun, q, s, RitzValues);
+    RitzValues = getRitzValues(A, randn(n, 1), s);
+    basisFunc = @(Afun, q, s) mpk(Afun, q, s, RitzValues);
+    % Monomial Basis
+    %basisFunc = @mpk;
     for aob = 1:length(AOB_options)
         for wb = 1:length(WB_options)
             % orthogonalized methods for RBGS
@@ -59,6 +60,7 @@ basisFunc = @(Afun, q, s) mpk(Afun, q, s, RitzValues);
                            % length(orthErr_eachRun) * runs        
             iters = zeros(runs, 1);      
             for w = 1:runs
+                Theta = sparsesign(d, n, 8);
                 Theta = CountSketch(d, n);
                 [~, beta, orthError] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
                     AOB, WB, b, ctol);
@@ -173,3 +175,4 @@ axis tight;
 %}
 
 plot_heatmap(relErr, "Relative Residual", WB_options, AOB_options, ss, matnum);
+plot_heatmap(orthErr, "Loss of Orthogonality", WB_options, AOB_options, ss, matnum);

@@ -35,7 +35,7 @@ function [x, beta, orthErr] = BGS_GMRES(A, s, p, basisFunc, b, ctol)
     r0 = b - Amul(x0);
     %beta0 = norm(Theta * r0);
     beta0 = norm(r0);
-    beta = 1;
+    beta = norm(r0) / norm(b);
     e1 = zeros(m, 1);
     e1(1) = beta0;
 

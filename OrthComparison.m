@@ -1,6 +1,6 @@
 % load the matrix
 % matrix from SuiteSparse
-matnum = 'SiO2';
+matnum = 'SiH4';
 S = load([matnum '.mat']);
 matrix = S.Problem.A;
 n = size(matrix, 1);
@@ -36,12 +36,15 @@ orthErr = zeros(length(WB_options),length(AOB_options), l);
 
 for vs = 1:l
     s = ss(vs);
-    p = round(1000/s);
+    p = round(500/s);
     m = p * s + 1;
     d = 2 * m;
     % Newton Basis
-    RitzValues = getRitzValues(A, randn(n, 1), s);
-    basisFunc = @(Afun, q, s) mpk(Afun, q, s, RitzValues);
+    %RitzValues = getRitzValues(A, randn(n, 1), s);
+    %basisFunc = @(Afun, q, s) mpk(Afun, q, s, RitzValues);
+    % Monomial Basis
+    basisFunc = @mpk;
+    Theta = sparsesign(d, n, 8);
     for aob = 1:length(AOB_options)
         for wb = 1:length(WB_options)
             % orthogonalized methods for RBGS
@@ -58,7 +61,6 @@ for vs = 1:l
                            % length(orthErr_eachRun) * runs        
             iters = zeros(runs, 1);      
             for w = 1:runs
-                Theta = CountSketch(d, n);
                 [~, beta, orthError] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
                     AOB, WB, b, ctol);
                 iters(w) = length(beta) - 1;             
@@ -102,7 +104,8 @@ for vs = 1:l
             dist = abs((p2(2)-p1(2))*x - (p2(1)-p1(1))*y + p2(1)*p1(2) - p2(2)*p1(1)) ...
                    / hypot(p2(2)-p1(2), p2(1)-p1(1));                                 
             % record relErr and orthErr at the elbow point
-            [~, idx]  = max(dist);
+            [~, idx] = max(dist);
+            %[~, idx] = min(relErr_mean);
             relErr(wb, aob, vs)  = relErr_mean(idx);
             orthErr(wb, aob, vs) = orthErr_mean(idx);
         end

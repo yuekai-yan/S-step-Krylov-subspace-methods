@@ -45,15 +45,12 @@ function plot_heatmap(Err, cat, WB_options, AOB_options, ss, matnum)
         title(sprintf('s = %d', ss(k)));
 
         % Add numeric values inside cells
-        vmin_rel = min(Rk(:));
-        vmax_rel = max(Rk(:));
-        thr_rel  = (vmin_rel + vmax_rel) / 2;
         [m, n] = size(Rk);
         for i = 1:m
           for j = 1:n
             val_rel = Rk(i,j);
             txt_rel = sprintf('%.2f', val_rel);      
-            clr = 'w'; if val_rel > thr_rel, clr='k'; end
+            clr = 'k'; 
             text(j,i,txt_rel, 'Color',clr, 'FontWeight','bold',...
                  'HorizontalAlignment','center','VerticalAlignment','middle');
           end
