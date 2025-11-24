@@ -21,6 +21,7 @@ function [Q, R] = rMGS(X, B, Theta)
     for i = 1:m
         W = S(:, i)' * P;  %1-by-s vector
         R(i, :) = W;
+        P = P - S(:, i) * W;
         Q = Q - X(:, i) * W;
     end
 end

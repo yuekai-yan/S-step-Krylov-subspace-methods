@@ -31,7 +31,7 @@ function [x, relErr, orthErr] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
     n = length(b);
     d = size(Theta, 1);
     V = zeros(n, m); % store basis vectors
-    %P = zeros(d, m); % store sketched basis vectors
+    P = zeros(d, m); % store sketched basis vectors
     S = zeros(d, m); % store orthonormal sketched basis vectors
     R = zeros(m+1, m+1);
     Q = zeros(n, m);
@@ -52,7 +52,7 @@ function [x, relErr, orthErr] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
     v = b;
     V(:, 1) = v;
     sketch0 = Theta * v;
-    %P(:, 1) = sketch0;
+    P(:, 1) = sketch0;
     R(1, 1) = norm(sketch0);
     Q(:, 1) = V(:, 1) ./ R(1, 1);
     S(:, 1) = Theta * Q(:, 1);
@@ -62,12 +62,12 @@ function [x, relErr, orthErr] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
         cols = (i + 1) : (i + s);
         k = j * s;
         [V(:, cols), B] = basisFunc(Amul, Q(:, i), s);
-        %P(:, cols) = Theta * V(:, cols);
+        P(:, cols) = Theta * V(:, cols);
 
         % Theta-orthogonalized V(:, cols) with Q(:, 1:i)
         AOB_fun = str2func(sprintf('AOB.%s', AOB));
-        [Q(:, cols), R(1:i, cols)] = AOB_fun(Q(:, 1:i), ...
-            V(:, cols), Theta);
+        [Q(:, cols), R(1:i, cols)] = AOB_fun(S(:, 1:i), ...
+            P(:, cols), Theta);
 
         % Theta orthonormal Q(:, cols)
         WB_fun  = str2func(sprintf('WB.%s', WB));

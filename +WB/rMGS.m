@@ -20,6 +20,7 @@ function [Q, R] = rMGS(X, Theta)
         for j = 1:i-1
             w = S(:, j)' * p;
             R(j, i) = w;
+            p = p - S(:, j) * w;
             q = q - Q(:, j) * w;
         end
         s = Theta * q;

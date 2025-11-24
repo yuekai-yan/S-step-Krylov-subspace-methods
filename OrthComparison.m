@@ -34,16 +34,17 @@ WB_options = ["rCGS", "rCGS2", "RGS", "rMGS", "rWhitening"];
 relErr = zeros(length(WB_options),length(AOB_options), l);
 orthErr = zeros(length(WB_options),length(AOB_options), l);
 
+idx_ls = zeros(length(WB_options),length(AOB_options), l);
 for vs = 1:l
     s = ss(vs);
     p = round(500/s);
     m = p * s + 1;
     d = 2 * m;
     % Newton Basis
-    %RitzValues = getRitzValues(A, randn(n, 1), s);
-    %basisFunc = @(Afun, q, s) mpk(Afun, q, s, RitzValues);
-    % Monomial Basis
-    basisFunc = @mpk;
+    RitzValues = getRitzValues(A, randn(n, 1), s);
+    basisFunc = @(Afun, q, s) mpk(Afun, q, s, RitzValues);
+    % Monomial Basis    
+    %basisFunc = @mpk;
     Theta = sparsesign(d, n, 8);
     for aob = 1:length(AOB_options)
         for wb = 1:length(WB_options)
@@ -108,6 +109,7 @@ for vs = 1:l
             %[~, idx] = min(relErr_mean);
             relErr(wb, aob, vs)  = relErr_mean(idx);
             orthErr(wb, aob, vs) = orthErr_mean(idx);
+            idx_ls(wb, aob, vs) = idx * s;
         end
     end
 end
@@ -176,3 +178,5 @@ axis tight;
 
 plot_heatmap(relErr, "Relative Residual", WB_options, AOB_options, ss, matnum);
 plot_heatmap(orthErr, "Loss of Orthogonality", WB_options, AOB_options, ss, matnum);
+%%
+plot_heatmap(round(10.^idx_ls), "Index", WB_options, AOB_options, ss, matnum);
