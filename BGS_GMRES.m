@@ -72,7 +72,7 @@ function [x, beta, orthErr] = BGS_GMRES(A, s, p, basisFunc, b, ctol)
         [Q(:, cols), R1] = qr(Q(:, cols), 0);
         R(cols, cols) = R1 * R(cols, cols);
 
-        orthErr = [orthErr; norm(Q(:, 1:k)' * Q(:, 1:k) - eye(k), 'fro')];
+        orthErr = [orthErr; norm(Q(:, 1:k+1)' * Q(:, 1:k+1) - eye(k+1), 'fro')];
         %Q(:, cols) = Q(:, cols) / R(cols, cols); 
         %S(:, cols) = Theta * Q(:, cols);
         b_0 = i : (i + s - 1);
