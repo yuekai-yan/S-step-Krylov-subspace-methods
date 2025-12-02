@@ -23,7 +23,7 @@ function [Afun, info] = getStartMatrix(n, kappa, alpha)
     % Range: [1, kappa], length = n
     %lambda = logspace(0, log10(kappa), n).';
     %lambda = linspace(1, kappa, n).';
-    lambda = logspace(0,-1,n).';
+    lambda = logspace(0,-3,n).';
 
     % Build upper bidiagonal matrix in Fourier domain
     % B = diag(lambda) + alpha * diag(ones(n-1,1), 1);

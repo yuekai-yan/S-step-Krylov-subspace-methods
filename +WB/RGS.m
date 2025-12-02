@@ -2,6 +2,7 @@ function [Q, R] = RGS(X, Theta)
     %Randomized Gram-Schmidt within a block
     %Input: 
     %X        n-by-m matrix to be Theta-orthogonalized
+    %P sketched matrix, P = Theta * X
     %Theta    random sketch of size d-by-n
     %Output: 
     %Q        n-by-m matrix, column-oriented Theta-orthonormal matrix

@@ -1,4 +1,4 @@
-function plot_heatmap(Err, cat, WB_options, AOB_options, ss, matnum)
+function plot_heatmap(R, cat, WB_options, AOB_options, ss, matnum)
 % Input:
 %     Err:   3-D tensor, size = [numWB, numAOB, numS]
 %     cat:   category of the error, e.g. relErr, orthErr
@@ -6,10 +6,7 @@ function plot_heatmap(Err, cat, WB_options, AOB_options, ss, matnum)
 %     ss:   list of s-values corresponding to the third dimension
 %     matnum:   string for dataset name displayed in the title
 
-    [nWB, nAOB, nS] = size(Err);
-
-    % Preprocessing: apply log10 only to positive finite values
-    R = log10(Err);
+    [nWB, nAOB, nS] = size(R);
 
     % Global color limits
     clim = [-16 0];

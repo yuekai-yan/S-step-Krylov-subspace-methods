@@ -31,6 +31,7 @@ function [x, beta, orthErr] = BGS_GMRES0(A, s, p, basisFunc, ...
     B = zeros (s+1, s, p);
 
     x0 = zeros(n, 1);
+    x = x0;
     r0 = b - Amul(x0);
     beta0 = norm(r0);
     beta = norm(r0) / norm(b);
@@ -88,6 +89,9 @@ function [x, beta, orthErr] = BGS_GMRES0(A, s, p, basisFunc, ...
         % solve the least-square problem
         y = H(1:(i+s), 1:(j*s)) \ e1(1:(i+s), 1);
 
+        % add correction from current Krylov subspace
+        x = [x, x0 + Q(:, 1:k) * y];
+
         % compute the residual
         beta = [beta; ...
                 norm(Amul(Q(:, 1:k)*y)-b) / norm(b)];
@@ -100,5 +104,5 @@ function [x, beta, orthErr] = BGS_GMRES0(A, s, p, basisFunc, ...
     end
 
     % add correction from current Krylov subspace
-    x = x0 + Q(:, 1:k) * y;
+    %x = x0 + Q(:, 1:k) * y;
 end

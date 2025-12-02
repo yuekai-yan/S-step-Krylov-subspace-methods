@@ -1,8 +1,9 @@
-function [Q, R] = rCGS(X, B, Theta)
+function [Q, R] = rCGS(X, S, B, Theta)
     %Randomized classic Gram-Schmidt against other blocks
     %Input:
     %X      n-by-m matrix, whose columns are Theta
     %       orthonormal
+    %S      d-by-m matrix, sketched matrix of X
     %B      small block matrix of size n-by-s to be 
     %       Theta orthogonalized with X
     %Theta  d-by-n matrix
@@ -17,7 +18,7 @@ function [Q, R] = rCGS(X, B, Theta)
     R = zeros(m, s);
 
     P = Theta * B;  %d-by-s matrix
-    S = Theta * X;  %d-by-m matrix
+    %S = Theta * X;  %d-by-m matrix
     R = S' * P;  %m-by-s matrix
     %Q0 = P - S * R; Theta * Q = Q0
     Q = B - X * R;

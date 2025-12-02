@@ -4,7 +4,7 @@ function [Q, R] = rCGS(X, Theta)
     %X n-by-m matrix to be Theta orthogonalized
     %Theta  random sketch of size d-by-n
     %Output: 
-    %Q n-by-m matrix, column-oriented Theta orthonormal matrix
+    %Q n-by-m matrix, column-oriented Theta-orthonormal matrix
     %R m-by-m matrix, coefficients of the basis spanned by Q
 
     n = size(X, 1);

@@ -1,9 +1,10 @@
-function [Q, R] = rCGS2(X, B, Theta)
+function [Q, R] = rCGS2(X, S, B, Theta)
     %Randomized classic Gram-Schmidt with reorthogonalization 
     %against other blocks
     %Input:
     %X      n-by-m matrix, whose columns are Theta
     %       orthonormal
+    %S      d-by-m matrix, sketched matrix of X
     %B      small block matrix of size n-by-s to be 
     %       Theta orthogonalized with X
     %Theta  d-by-n matrix
@@ -18,7 +19,7 @@ function [Q, R] = rCGS2(X, B, Theta)
     R = zeros(m, s);
 
     P = Theta * B;  %d-by-s matrix
-    S = Theta * X;  %d-by-m matrix
+    %S = Theta * X;  %d-by-m matrix
     R0 = S' * P;  %m-by-s matrix
     Q0 = B - X * R0;
     %reorthogonalization
