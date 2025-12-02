@@ -1,8 +1,7 @@
-function [x, relErr, orthErr] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
+function [x, relRes, orthLoss, cond_num] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
                               AOB, WB, b, ctol)
     %Inputs:
     %A          matrix of size (n, n) or function handle
-    %v          start vector of size (n, 1)
     %s          step size
     %p          number of iterations, dimension of the final
     %           Krylov subspace is m = s * p + 1
@@ -13,12 +12,13 @@ function [x, relErr, orthErr] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
     %WB         orthogonalization methods within one block {
     %           rWhitening (QR), RGS (backslash), rCGS, rCGS2, rMGS}
     %b          RHS of the A * x = b
-    %ctol       convergence tolerenceßß
+    %ctol       convergence tolerence
     %
     %Outputs:
     %x          approximate solution of size (n, 1)
-    %relErr       store the norm of the relative residual
-    %orthErr      store the loss of orthogonality
+    %relRes       store the norm of the relative residual
+    %orthLoss      store the loss of orthogonality
+    %cond_num      store the condition number of Q
 
     % check whether A is a matrix or function handle
     if isa(A, 'function_handle')
@@ -38,14 +38,14 @@ function [x, relErr, orthErr] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
     H = zeros(m, m-1);
     B = zeros(s+1, s);
     %M = [];  % store the Theta * A * Q
-    orthErr = 0; % store the orthogonalization error of the 
+    orthLoss = 0; % store the orthogonalization error of the 
                   % Theta-orthogonal matrix Q
                   
     x0 = zeros(n, 1);
+    x = x0;
     r0 = b - Amul(x0);
-    r1 = norm(Theta * b);
     beta0 = norm(Theta * r0);
-    relErr = norm(r0) / norm(b);
+    relRes = norm(r0) / norm(b);
     e1 = zeros(m, 1);
     e1(1) = beta0;
 
@@ -55,6 +55,7 @@ function [x, relErr, orthErr] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
     %P(:, 1) = sketch0;
     R(1, 1) = norm(sketch0);
     Q(:, 1) = V(:, 1) ./ R(1, 1);
+    cond_num = 1;
     S(:, 1) = Theta * Q(:, 1);
 
     for j = 1:p
@@ -67,14 +68,15 @@ function [x, relErr, orthErr] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
         % Theta-orthogonalized V(:, cols) with Q(:, 1:i)
         AOB_fun = str2func(sprintf('AOB.%s', AOB));
         [Q(:, cols), R(1:i, cols)] = AOB_fun(Q(:, 1:i), ...
-            V(:, cols), Theta);
+            S(:, 1:i), V(:, cols), Theta);
 
         % Theta orthonormal Q(:, cols)
         WB_fun  = str2func(sprintf('WB.%s', WB));
         [Q(:, cols), R(cols, cols)] = WB_fun(Q(:, cols), Theta);
         
         S(:, cols) = Theta * Q(:, cols);
-        orthErr = [orthErr; norm(S(:, 1:(k+1))' * S(k+1) - eye(k+1), 'fro')];
+        cond_num = [cond_num; cond(Q(:, 1:(k+1)))];
+        orthLoss = [orthLoss; norm(S(:, 1:(k+1))' * S(:, 1:(k+1)) - eye(k+1), 'fro')];
         b_0 = i : k;  % s*(j-1)+1 : s*j
         
         % update Hessenberg, explicit version
@@ -92,13 +94,17 @@ function [x, relErr, orthErr] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
         %}
 
         % solve the least-square problem
-        y = H(1:(i+s), 1:(j*s)) \ (r1 * e1(1:(i+s), 1));  % k-by-1
+        y = H(1:(i+s), 1:(j*s)) \ e1(1:(i+s), 1);  % k-by-1
 
         % compute the residual
-        relErr = [relErr; ...
+        relRes = [relRes; ...
                 norm(Amul(Q(:,1:length(y))*y)-b) / norm(b)];
+
+        % add correction from current Krylov subspace
+        x = [x, x0 + Q(:, 1:k) * y];
+
         % test for convergence of residual
-        if relErr(end) < ctol
+        if relRes(end) < ctol
             fprintf('RBGS converged after %d steps\n', k);
             break
         end
@@ -106,5 +112,5 @@ function [x, relErr, orthErr] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
     end
 
     % add correction from current Krylov subspace
-    x = x0 + Q(:, 1:k) * y;
+    %x = x0 + Q(:, 1:k) * y;
 end
