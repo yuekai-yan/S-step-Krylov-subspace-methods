@@ -1,4 +1,4 @@
-function [Afun, info] = getStartMatrix(n, kappa, alpha)
+function Afun = getStartMatrix(n, alpha, kappa)
 %   [Afun, info] = getStartMatrix(n, kappa, alpha)
 %   - n     : problem size
 %   - kappa : 2-norm condition number
@@ -13,17 +13,16 @@ function [Afun, info] = getStartMatrix(n, kappa, alpha)
 %   * If alpha ≠ 0, the operator is generally non-symmetric (non-normal).
 
     if nargin < 2
-        kappa = 50;
+        alpha = 0;
     end  
     if nargin < 3
-        alpha = 1e-3;  % default superdiagonal weight
+        kappa = -3;  % default superdiagonal weight
     end
 
     % Construct eigenvalues (positive, logarithmically spaced)
     % Range: [1, kappa], length = n
-    %lambda = logspace(0, log10(kappa), n).';
     %lambda = linspace(1, kappa, n).';
-    lambda = logspace(0,-3,n).';
+    lambda = logspace(0,kappa,n).';
 
     % Build upper bidiagonal matrix in Fourier domain
     % B = diag(lambda) + alpha * diag(ones(n-1,1), 1);
@@ -34,8 +33,8 @@ function [Afun, info] = getStartMatrix(n, kappa, alpha)
     Afun = @(x) ifft(B * fft(x));
 
     % Additional information
-    info = struct();
-    info.kind = 'Upper bidiagonal via unitary similarity: A = Q^H * B * Q';
-    info.B = B;
-    info.kappa_theory = cond(B);   % numerical condition number
+    %info = struct();
+    %info.kind = 'Upper bidiagonal via unitary similarity: A = Q^H * B * Q';
+    %info.B = B;
+    %info.kappa_theory = cond(B);   % numerical condition number
 end

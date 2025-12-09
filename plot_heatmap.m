@@ -1,4 +1,4 @@
-function plot_heatmap(R, cat, WB_options, AOB_options, ss, matnum)
+function plot_heatmap(R, cat, WB_options, AOB_options, ss, matnum, clim)
 % Input:
 %     Err:   3-D tensor, size = [numWB, numAOB, numS]
 %     cat:   category of the error, e.g. relErr, orthErr
@@ -6,10 +6,11 @@ function plot_heatmap(R, cat, WB_options, AOB_options, ss, matnum)
 %     ss:   list of s-values corresponding to the third dimension
 %     matnum:   string for dataset name displayed in the title
 
-    [nWB, nAOB, nS] = size(R);
+    if nargin < 7
+        clim = [-16 0];
+    end
 
-    % Global color limits
-    clim = [-16 0];
+    [nWB, nAOB, nS] = size(R);
     % Layout settings: at most 4 subplots per row
     maxCols = 4;
     nCols = min(maxCols, nS);
@@ -20,7 +21,7 @@ function plot_heatmap(R, cat, WB_options, AOB_options, ss, matnum)
     tl = tiledlayout(nRows, nCols, 'TileSpacing', 'compact', 'Padding', 'compact');
 
     % Global title
-    sgtitle(sprintf('%s, log10-scale (%s)', cat, matnum), 'FontWeight', 'bold');
+    sgtitle(sprintf('%s (%s)', cat, matnum), 'FontWeight', 'bold');
 
     for k = 1:nS
         nexttile;

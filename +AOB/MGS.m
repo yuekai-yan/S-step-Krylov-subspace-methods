@@ -16,7 +16,7 @@ function [Q, R] = MGS(X, B)
     Q = B;
 
     for i = 1:m
-        W = X(:, i)' * B;  %1-by-s vector
+        W = X(:, i)' * Q;  %1-by-s vector
         R(i, :) = W;
         Q = Q - X(:, i) * W;
     end

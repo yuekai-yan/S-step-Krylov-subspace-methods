@@ -1,4 +1,4 @@
-function [x, relRes, orthLoss, cond_num] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
+function [x, relRes, orthLoss] = RBGS_GMRES(A, s, p, Theta, basisFunc, ...
                               AOB, WB, b, ctol)
     %Inputs:
     %A          matrix of size (n, n) or function handle
@@ -18,7 +18,6 @@ function [x, relRes, orthLoss, cond_num] = RBGS_GMRES(A, s, p, Theta, basisFunc,
     %x          approximate solution of size (n, 1)
     %relRes       store the norm of the relative residual
     %orthLoss      store the loss of orthogonality
-    %cond_num      store the condition number of Q
 
     % check whether A is a matrix or function handle
     if isa(A, 'function_handle')
@@ -55,7 +54,6 @@ function [x, relRes, orthLoss, cond_num] = RBGS_GMRES(A, s, p, Theta, basisFunc,
     %P(:, 1) = sketch0;
     R(1, 1) = norm(sketch0);
     Q(:, 1) = V(:, 1) ./ R(1, 1);
-    cond_num = 1;
     S(:, 1) = Theta * Q(:, 1);
 
     for j = 1:p
@@ -75,7 +73,6 @@ function [x, relRes, orthLoss, cond_num] = RBGS_GMRES(A, s, p, Theta, basisFunc,
         [Q(:, cols), R(cols, cols)] = WB_fun(Q(:, cols), Theta);
         
         S(:, cols) = Theta * Q(:, cols);
-        cond_num = [cond_num; cond(Q(:, 1:(k+1)))];
         orthLoss = [orthLoss; norm(S(:, 1:(k+1))' * S(:, 1:(k+1)) - eye(k+1), 'fro')];
         b_0 = i : k;  % s*(j-1)+1 : s*j
         
@@ -100,9 +97,6 @@ function [x, relRes, orthLoss, cond_num] = RBGS_GMRES(A, s, p, Theta, basisFunc,
         relRes = [relRes; ...
                 norm(Amul(Q(:,1:length(y))*y)-b) / norm(b)];
 
-        % add correction from current Krylov subspace
-        x = [x, x0 + Q(:, 1:k) * y];
-
         % test for convergence of residual
         if relRes(end) < ctol
             fprintf('RBGS converged after %d steps\n', k);
@@ -112,5 +106,5 @@ function [x, relRes, orthLoss, cond_num] = RBGS_GMRES(A, s, p, Theta, basisFunc,
     end
 
     % add correction from current Krylov subspace
-    %x = x0 + Q(:, 1:k) * y;
+    x = x0 + Q(:, 1:k) * y;
 end
