@@ -1,5 +1,5 @@
-%matnum = 'gen';
-%ss = 5:5:40;
+matnum = 'SiH4';
+ss = 5:5:40;
 
 [nWB, nAOB, nL] = size(relResAll);
 relRes = zeros(nWB, nAOB, nL);
@@ -7,10 +7,10 @@ orthLoss = zeros(nWB, nAOB, nL);
 idx_ls = zeros(nWB, nAOB, nL);
 
 % AOB_options for RBGS
-%AOB_options = ["rCGS2", "rCGS", "RGS", "rMGS"];
+AOB_options = ["rCGS2", "rCGS", "RGS", "rMGS"];
 %AOB_options = ["rMGS"];
 % WB_options for RBGS
-%WB_options = ["rCGS", "rCGS2", "RGS", "rMGS", "rWhitening"];
+WB_options = ["rCGS", "rCGS2", "RGS", "rMGS", "rCholesky"];
 %WB_options = ["rCGS"];
 
 % collect the result for each combination (aob, wb)
@@ -76,8 +76,23 @@ switch mode_case
         end
 end
 % ---------- plot ----------
+%%
 relRes_log = log10(relRes);
 orthLoss_log = log10(orthLoss);
 plot_heatmap(relRes_log, "Relative Residual", WB_options, AOB_options, ss, matnum);
+
+
+set(gcf, "Units", "inches");
+set(gcf, "Position", [1 1 10 5]);   
+exportgraphics(gcf, "fig/SiH4_relRes_RBGS_mono.png", "Resolution", 300);
+
 plot_heatmap(orthLoss_log, "Loss of Orthogonality", WB_options, AOB_options, ss, matnum);
+
+set(gcf, "Units", "inches");
+set(gcf, "Position", [1 1 10 5]);
+exportgraphics(gcf, "fig/SiH4_orthLoss_RBGS_mono.png", "Resolution", 300);
+
 plot_heatmap(idx_ls, "Index", WB_options, AOB_options, ss, matnum, [min(idx_ls(:)), max(idx_ls(:))]);
+set(gcf, "Units", "inches");
+set(gcf, "Position", [1 1 10 5]);
+exportgraphics(gcf, "fig/SiH4_idx_RBGS_mono.png", "Resolution", 300);

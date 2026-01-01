@@ -47,7 +47,11 @@ function plot_heatmap(R, cat, WB_options, AOB_options, ss, matnum, clim)
         for i = 1:m
           for j = 1:n
             val_rel = Rk(i,j);
-            txt_rel = sprintf('%.2f', val_rel);      
+            if strcmp(cat, "Index")
+                txt_rel = sprintf('%.0f', val_rel);
+            else
+                txt_rel = sprintf('%.2f', val_rel);
+            end
             clr = 'k'; 
             text(j,i,txt_rel, 'Color',clr, 'FontWeight','bold',...
                  'HorizontalAlignment','center','VerticalAlignment','middle');

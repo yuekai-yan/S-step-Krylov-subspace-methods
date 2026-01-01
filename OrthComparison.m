@@ -26,7 +26,7 @@ runs = 5;
 AOB_options = ["rCGS2", "rCGS", "RGS", "rMGS"];
 %AOB_options = ["rMGS"];
 % WB_options for RBGS
-WB_options = ["rCGS", "rCGS2", "RGS", "rMGS", "rWhitening"];
+WB_options = ["rCGS", "rCGS2", "RGS", "rMGS", "rCholesky"];
 %WB_options = ["rCGS"];
 
 relResAll   = cell(length(WB_options),length(AOB_options), l);

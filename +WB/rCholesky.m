@@ -1,5 +1,5 @@
-function [Q, R] = rWhitening(X, Theta)
-    %Randomized whitening within a block
+function [Q, R] = rCholesky(X, Theta)
+    %Randomized Cholesky within a block
     %Input: 
     %X n-by-m matrix to be Theta orthogonalized
     %Theta  random sketch of size d-by-n

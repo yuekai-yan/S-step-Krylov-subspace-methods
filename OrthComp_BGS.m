@@ -22,9 +22,9 @@ l = length(ss);
 ctol = 1e-16;
 
 % AOB_options for BGS
-AOB_options = ["CGS2", "CGS", "GS", "MGS"];
+AOB_options = ["CGS2", "CGS", "MGS"];
 % WB_options for RBGS
-WB_options = ["CGS", "CGS2", "GS", "MGS", "Whitening"];
+WB_options = ["CGS", "CGS2", "MGS", "Householder"];
 
 relResAll   = cell(length(WB_options),length(AOB_options), l);
 orthLossAll = cell(length(WB_options),length(AOB_options), l);
