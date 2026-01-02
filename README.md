@@ -8,7 +8,6 @@ This project investigates deterministic and randomized orthogonalization schemes
 ├── +AOB                  # This directory contains inter-block orthogonalization methods
 │   ├── CGS.m
 │   ├── CGS2.m
-│   ├── GS.m
 │   ├── MGS.m
 │   ├── RGS.m
 │   ├── rCGS.m
@@ -17,7 +16,6 @@ This project investigates deterministic and randomized orthogonalization schemes
 ├── +WB                   # This directory contains intra-block orthogonalization methods
 │   ├── CGS.m
 │   ├── CGS2.m
-│   ├── GS.m
 │   ├── Householder.m
 │   ├── MGS.m
 │   ├── RGS.m
@@ -42,7 +40,7 @@ This project investigates deterministic and randomized orthogonalization schemes
 │   ├── Rademacher.m
 │   └── sparsesign.c
 ├── fig                       # This directory contains all the figures in the project
-├── main.m.                   # This script generates iteration-wise plots to compare deterministic and randomized
+├── main.m                    # This script generates iteration-wise plots to compare deterministic and randomized
                                 orthogonalization schemes of interest. It also supports studying the effect
                                 of different step sizes s for a single or multiple deterministic/randomized schemes
 ├── plot4orthcomp.m           # This script plots heatmaps for the data obtained from `OrthComparison.m` and `OrthComp_BGS.m`, 
