@@ -1,3 +1,11 @@
+% This script computes and records the relative residual 
+% and orthogonality loss for different randomized  
+% orthogonalization schemes and step sizes s in BGS-GMRES 
+
+% The result is recorded in relResAll{} and orthLossAll
+
+
+
 %rng(0);
 % load the matrix
 % matrix from SuiteSparse
