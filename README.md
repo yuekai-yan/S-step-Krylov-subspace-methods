@@ -1,4 +1,4 @@
-# Autumn 2026 Semester Project - Improving stability and performance of s-step Krylov subspace methods with randomization
+# Fall 2025 Semester Project - Improving stability and performance of s-step Krylov subspace methods with randomization
 
 ## Overview
 This project investigates deterministic and randomized orthogonalization schemes within the $s$-step GMRES framework. We systematically evaluate their impact on numerical accuracy, orthogonality preservation, and stability in finite-precision arithmetic, highlighting how randomization can improve robustness while maintaining computational efficiency.
